@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A contributor-friendly overview of project ownership, progress, activity, and priority.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <p class="dashboard-kicker">Team project overview</p>
+        <h1>Project Pulse</h1>
+        <p class="dashboard-description">
+          Find the latest project updates, see who owns each effort, and spot
+          where a helping hand could make a difference.
+        </p>
+      </header>
+
+      <section aria-labelledby="projects-heading">
+        <div class="dashboard-section-heading">
+          <h2 id="projects-heading">Projects</h2>
+          <p id="project-count" class="dashboard-section-note">Loading projects…</p>
+        </div>
+        <p id="data-message" class="data-message" role="status" aria-live="polite">
+          Loading project information…
+        </p>
+        <div id="project-grid" class="project-grid" aria-label="Project cards"></div>
+      </section>
+    </main>
+
+    <script>
+      const message = document.getElementById("data-message");
+      const projectGrid = document.getElementById("project-grid");
+      const projectCount = document.getElementById("project-count");
+      const requiredFields = ["name", "owner", "status", "recentActivity", "priority"];
+
+      function hasRequiredProjectFields(project) {
+        return project && typeof project === "object" &&
+          requiredFields.every((field) =>
+            typeof project[field] === "string" && project[field].trim().length > 0
+          );
+      }
+
+      function badgeToken(value) {
+        return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      }
+
+      function createTextElement(tagName, className, text) {
+        const element = document.createElement(tagName);
+        element.className = className;
+        element.textContent = text;
+        return element;
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const cardHeader = document.createElement("div");
+        cardHeader.className = "project-card-header";
+        cardHeader.append(
+          createTextElement("h3", "project-name", project.name)
+        );
+
+        const statusBadge = createTextElement("span", "status-badge", `Status: ${project.status}`);
+        statusBadge.dataset.status = badgeToken(project.status);
+        cardHeader.append(statusBadge);
+        card.append(cardHeader);
+
+        card.append(createTextElement("p", "project-owner", `Owner: ${project.owner}`));
+        card.append(createTextElement(
+          "p",
+          "project-summary",
+          typeof project.summary === "string" && project.summary.trim()
+            ? project.summary
+            : "No project summary is available yet."
+        ));
+
+        const footer = document.createElement("footer");
+        footer.className = "project-card-footer";
+
+        const activity = document.createElement("p");
+        activity.className = "project-activity";
+        activity.append(
+          createTextElement("span", "project-activity-label", "Recent activity"),
+          document.createTextNode(project.recentActivity)
+        );
+        footer.append(activity);
+
+        const priorityBadge = createTextElement(
+          "span",
+          "priority-badge",
+          `Priority: ${project.priority}`
+        );
+        priorityBadge.dataset.priority = badgeToken(project.priority);
+        footer.append(priorityBadge);
+        card.append(footer);
+
+        return card;
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Project data request failed (${response.status}).`);
+          }
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error('Project data must contain a top-level "projects" array.');
+          }
+
+          if (data.projects.some((project) => !hasRequiredProjectFields(project))) {
+            throw new Error("One or more projects are missing a required field.");
+          }
+
+          projectGrid.replaceChildren(...data.projects.map(createProjectCard));
+          projectCount.textContent = `${data.projects.length} ${
+            data.projects.length === 1 ? "project" : "projects"
+          }`;
+
+          if (data.projects.length === 0) {
+            message.className = "dashboard-empty";
+            message.textContent = "There are no projects to show right now. Check back soon or add a project to the data file.";
+          } else {
+            message.hidden = true;
+          }
+        } catch (error) {
+          message.className = "dashboard-error";
+          message.setAttribute("role", "alert");
+          message.textContent = `Unable to load project information. ${error.message} Run this page from the Project Pulse local server and check project-data.json.`;
+          projectCount.textContent = "Project information unavailable";
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>

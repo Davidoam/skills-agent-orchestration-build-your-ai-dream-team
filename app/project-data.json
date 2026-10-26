@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Community Onboarding",
+      "owner": "Maya Chen",
+      "status": "On track",
+      "recentActivity": "Published the updated welcome checklist and requested a documentation review.",
+      "priority": "High",
+      "summary": "Make it easier for new contributors to find a first issue, understand the workflow, and get help."
+    },
+    {
+      "name": "Accessibility Improvements",
+      "owner": "Jordan Lee",
+      "status": "In progress",
+      "recentActivity": "Keyboard navigation checks are complete; color contrast fixes are ready for review.",
+      "priority": "Medium",
+      "summary": "Improve keyboard access, contrast, and screen-reader clarity across the contributor experience."
+    },
+    {
+      "name": "Release Notes Refresh",
+      "owner": "Sam Rivera",
+      "status": "At risk",
+      "recentActivity": "The draft is waiting on final feature summaries from two project teams.",
+      "priority": "High",
+      "summary": "Create a consistent release-notes format that helps users and contributors understand each release."
+    },
+    {
+      "name": "Issue Triage Guide",
+      "owner": "Alex Morgan",
+      "status": "Planning",
+      "recentActivity": "Collected common triage questions and outlined a first draft.",
+      "priority": "Low",
+      "summary": "Document a lightweight, welcoming process for labeling issues and routing questions to the right people."
+    }
+  ]
+}
